@@ -1,5 +1,6 @@
 import os
 import re
+import shutil
 import warnings
 import argparse
 import numpy as np
@@ -170,3 +171,5 @@ if __name__ == "__main__":
                 written = True
     os.rename("tmp-"+table_name+"-"+str(problem_id)+"-"+target+".csv",
               table_name+"-"+str(problem_id)+"-"+target+".csv")
+    shutil.move(table_name+"-"+str(problem_id)+"-"+target+".csv",
+                table_name+"/"+table_name+"-"+str(problem_id)+"-"+target+".csv")
