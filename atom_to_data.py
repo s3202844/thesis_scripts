@@ -79,7 +79,8 @@ def merge_features(feature_list, description, unique_header,
             feature_counter += len(temp_list[0][8:])
         header_counter += 1
     dataset_df = pd.DataFrame(dataset, columns=columns)
-    dataset_df.to_csv("/data/s3202844/data/{}.csv".format(description))
+    dataset_df.to_csv(
+        "/data/s3202844/data/{}.csv".format(description), index=False)
 
 
 if __name__ == "__main__":
