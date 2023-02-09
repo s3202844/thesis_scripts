@@ -53,9 +53,10 @@ for problem_id in range(1, 6):
         plt.figure(figsize=(5, 5))
         plt.ylim(-0.1, 1.1)
         plt.plot(x, pvalue)
-        plt.xlabel("$\log_2{scale\_factor}$")
         plt.axhline(0.05, color="red", linestyle=":")
-        plt.title(feature_list[i])
+        plt.xlabel("$\log_2{scale\_factor}$")
+        plt.ylabel("$pvalue$")
+        plt.title("KS-test result of {}.".format(feature_list[i]))
         plt.tight_layout()
         plt.savefig("{}/{}/{}_pvalue.png".format(problem_id, feature_list[i],
                                                  feature_list[i]))
@@ -82,3 +83,4 @@ for problem_id in range(1, 6):
         except ValueError:
             plt.clf()
             print("{} only have None value!".format(feature_list[i]))
+        plt.close()
