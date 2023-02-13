@@ -23,6 +23,7 @@ dataset_list = df.values.tolist()
 columns = df.columns.values.tolist()
 feature_list = columns[8:]
 
+plt.figure(figsize=(15, 15))
 for problem_id in range(1, 6):
     boxes = []
     for i in range(len(feature_list)):
@@ -41,9 +42,13 @@ for problem_id in range(1, 6):
             diff_ = min(abs((p_mean-q_mean)/p_mean), 10.)
             diff += [diff_]
         boxes += [diff]
-    plt.figure(figsize=(20, 5))
-    plt.boxplot(boxes, labels=feature_list)
+    plt.subplot(5, 1, problem_id)
+    if problem_id == 5:
+        plt.boxplot(boxes, labels=feature_list)
+        plt.xticks(rotation=90)
+    else:
+        plt.boxplot(boxes, labels=["" for _ in range(len(feature_list))])
+    plt.title("problem_id: {}".format(problem_id))
     plt.ylabel("%")
-    plt.xticks(rotation=90)
-    plt.tight_layout()
-    plt.savefig("{}_mean.png".format(problem_id))
+plt.tight_layout()
+plt.savefig("mean.png".format(problem_id))
