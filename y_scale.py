@@ -39,6 +39,10 @@ if __name__ == "__main__":
         is_rotate = 0
         is_scale = 1
         y = np.array(read_y(file_name, num_sampling, num_x))
+        path = "/data/s3202844/data/y_scale/{}_{}_{}_{}_{}_{}_{}_0.txt".format(
+            problem_id, experiment_id, subtract_lim, rotate_lim,
+            1.0, is_subtract, is_rotate)
+        np.savetxt(path, y)
         # np.savetxt("/home/s3202844/scripts/temp.txt", np.array(y))
         for scale_factor in range(-6, 7):
             new_y = y*(2**scale_factor)
