@@ -11,6 +11,7 @@ do
     for feature in $features
     do
         python scripts/atom_process.py -d=$description -p=$folder_path -f=$feature -i=$id &
+        sleep 1
         echo $id $feature
     done
 done
