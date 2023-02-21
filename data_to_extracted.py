@@ -72,17 +72,20 @@ def kstest(distr):
 
 
 if __name__ == "__main__":
-    if len(sys.argv) != 2:
+    if len(sys.argv) != 3:
         print("Please indicate the experiment by its description!")
         print("Must run this script in the folder that hold the <description>!")
         sys.exit()
     raw_path = sys.argv[1]
+    description = sys.argv[2]
     df = pd.read_csv(raw_path)
     columns = df.columns.values.tolist()
     unique_header = parse_unique_header(df)
     distr = parse_distribution(df, unique_header)
     distr_df = pd.DataFrame(distr, columns=columns)
-    distr_df.to_csv("temp_distr.csv", index=False)
+    distr_df.to_csv(
+        "/data/s3202844/data/{}_distr.csv".format(description), index=False)
     dataset_kstest = kstest(distr)
     dataset_kstest = pd.DataFrame(dataset_kstest, columns=columns)
-    dataset_kstest.to_csv("temp_kstest.csv", index=False)
+    dataset_kstest.to_csv(
+        "/data/s3202844/data/{}_kstest.csv".format(description), index=False)
