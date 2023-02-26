@@ -1,7 +1,7 @@
 import sys
 import pandas as pd
 
-from scipy.stats import ks_2samp
+from scipy.stats import ks_2samp, wasserstein_distance
 
 
 def parse_unique_header(experiment_table):
@@ -67,7 +67,8 @@ def kstest(distr):
             p = basic_distr_[j+8]
             q = dataset_distr[i][j]
             statistic, pvalue = ks_2samp(p, q)
-            dataset_kstest[i][j+8] = [statistic, pvalue]
+            wd = wasserstein_distance(p, q)
+            dataset_kstest[i][j+8] = [statistic, pvalue, wd]
     return dataset_kstest
 
 
