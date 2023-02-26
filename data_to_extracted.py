@@ -75,7 +75,6 @@ def kstest(distr):
 if __name__ == "__main__":
     if len(sys.argv) != 3:
         print("Please indicate the experiment by its description!")
-        print("Must run this script in the folder that hold the <description>!")
         sys.exit()
     raw_path = sys.argv[1]
     description = sys.argv[2]
