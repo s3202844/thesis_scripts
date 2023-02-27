@@ -16,12 +16,12 @@ def string_to_list(string):
 X = [5.0 * n for n in range(1, 21)]
 
 os.chdir("/data/s3202844/data")
-df_distr = pd.read_csv("experiment_subtract_distr.csv")
-df_ks = pd.read_csv("experiment_subtract_kstest.csv")
+df = pd.read_csv("experiment_subtract_distr.csv")
+df_test = pd.read_csv("experiment_subtract_kstest.csv")
 if not os.path.exists("/home/s3202844/results/experiment_subtract/"):
     os.mkdir("/home/s3202844/results/experiment_subtract/")
 os.chdir("/home/s3202844/results/experiment_subtract/")
-columns = df_distr.columns.values.tolist()
+columns = df.columns.values.tolist()
 feature_list = columns[8:]
 
 for problem_id in range(1, 6):
@@ -33,15 +33,15 @@ for problem_id in range(1, 6):
         # 2 lists for 2 plots
         PQf = []
         pvalue = []
+        wd = []
         for x in X:
             # parse distribution
-            p_string = df_distr[(df_distr["problem_id"] == float(problem_id)) &
-                                (df_distr["is_subtract"] == 0.0)][
-                                    feature_list[i]].tolist()[0]
-            q_string = df_distr[(df_distr["problem_id"] == float(problem_id)) &
-                                (df_distr["subtract_lim"] == float(x)) &
-                                (df_distr["is_subtract"] == 1.0)][
-                                    feature_list[i]].tolist()
+            p_string = df[(df["problem_id"] == float(problem_id)) &
+                          (df["is_subtract"] == 0.0)][
+                feature_list[i]].tolist()[0]
+            q_string = df[(df["problem_id"] == float(problem_id)) &
+                          (df["subtract_lim"] == float(x)) &
+                          (df["is_subtract"] == 1.0)][feature_list[i]].tolist()
             p = string_to_list(p_string)
             q = []
             for q_ in q_string:
@@ -49,8 +49,13 @@ for problem_id in range(1, 6):
             for j in range(len(p)):
                 PQf += [[p[j], q[j], x]]
             # parse pvalue
-            _, pvalue_ = ks_2samp(p, q)
-            pvalue += [pvalue_]
+            test_string = df_test[(df_test["problem_id"] == float(problem_id)) &
+                                  (df_test["subtract_lim"] == float(x)) &
+                                  (df_test["is_subtract"] == 1.0)][
+                feature_list[i]].tolist()[0]
+            test = string_to_list(test_string)
+            pvalue += [test[1]]
+            wd += [test[2]]
         # pvalue plot
         plt.figure(figsize=(5, 5))
         plt.ylim(-0.1, 1.1)
@@ -62,7 +67,19 @@ for problem_id in range(1, 6):
         plt.tight_layout()
         plt.savefig("{}/{}/{}_pvalue.png".format(problem_id, feature_list[i],
                                                  feature_list[i]))
-        plt.clf()
+        plt.cla()
+        plt.close()
+        # wd plot
+        plt.figure(figsize=(5, 5))
+        plt.plot(X, wd)
+        plt.xlabel("$subtract\_lim$")
+        plt.ylabel("$wasserstein_distance$")
+        plt.title("Wasserstein Distance result of {}.".format(feature_list[i]))
+        plt.tight_layout()
+        plt.savefig("{}/{}/{}_wd.png".format(problem_id, feature_list[i],
+                                             feature_list[i]))
+        plt.cla()
+        plt.close()
         # distribution plot
         PQf_df = pd.DataFrame(PQf, columns=["p", "q", "lim"])
         try:
@@ -81,8 +98,9 @@ for problem_id in range(1, 6):
             plt.savefig("{}/{}/{}_distr.png".format(problem_id,
                                                     feature_list[i],
                                                     feature_list[i]))
-            plt.clf()
+            plt.cla()
+            plt.close()
         except ValueError:
-            plt.clf()
+            plt.cla()
+            plt.close()
             print("{} only have None value!".format(feature_list[i]))
-        plt.close()

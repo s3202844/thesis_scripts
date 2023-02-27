@@ -13,17 +13,14 @@ def string_to_list(string):
     return [float(c) for c in content]
 
 
-factors = [0.015625, 0.03125, 0.0625, 0.125, 0.25, 0.5,
-           1., 2., 4., 8., 16., 32., 64., 128.]
-x = [math.log(f, 2) for f in factors]
+X = [100 * i for i in range(11)]
 
 os.chdir("/data/s3202844/data")
-df = pd.read_csv("experiment_scale_distr.csv")
-df_test = pd.read_csv("experiment_scale_kstest.csv")
-if not os.path.exists("/home/s3202844/results/experiment_scale/"):
-    os.mkdir("/home/s3202844/results/experiment_scale/")
-os.chdir("/home/s3202844/results/experiment_scale/")
-dataset_list = df.values.tolist()
+df = pd.read_csv("experiment_y_subtract_distr.csv")
+df_test = pd.read_csv("experiment_y_subtract_kstest.csv")
+if not os.path.exists("/home/s3202844/results/experiment_y_subtract/"):
+    os.mkdir("/home/s3202844/results/experiment_y_subtract/")
+os.chdir("/home/s3202844/results/experiment_y_subtract/")
 columns = df.columns.values.tolist()
 feature_list = columns[8:]
 
@@ -37,21 +34,23 @@ for problem_id in range(1, 6):
         PQf = []
         pvalue = []
         wd = []
-        for f in factors:
+        for x in X:
             # parse distribution
             p_string = df[(df["problem_id"] == float(problem_id)) &
-                          (df["is_scale"] == 0.0)][feature_list[i]].tolist()[0]
+                          (df["is_subtract"] == 0.0)][
+                feature_list[i]].tolist()[0]
             q_string = df[(df["problem_id"] == float(problem_id)) &
-                          (df["scale_factor"] == float(f)) &
-                          (df["is_scale"] == 1.0)][feature_list[i]].tolist()[0]
+                          (df["subtract_lim"] == float(x)) &
+                          (df["is_subtract"] == 1.0)][
+                feature_list[i]].tolist()[0]
             p = string_to_list(p_string)
             q = string_to_list(q_string)
             for j in range(len(p)):
-                PQf += [[p[j], q[j], f]]
+                PQf += [[p[j], q[j], x]]
             # parse pvalue
             test_string = df_test[(df_test["problem_id"] == float(problem_id)) &
-                                  (df_test["scale_factor"] == float(f)) &
-                                  (df_test["is_scale"] == 1.0)][
+                                  (df_test["subtract_lim"] == float(x)) &
+                                  (df_test["is_subtract"] == 1.0)][
                 feature_list[i]].tolist()[0]
             test = string_to_list(test_string)
             pvalue += [test[1]]
@@ -59,9 +58,9 @@ for problem_id in range(1, 6):
         # pvalue plot
         plt.figure(figsize=(5, 5))
         plt.ylim(-0.1, 1.1)
-        plt.plot(x, pvalue)
+        plt.plot(X, pvalue)
         plt.axhline(0.05, color="red", linestyle=":")
-        plt.xlabel("$\log_2{scale\_factor}$")
+        plt.xlabel("$subtract\_lim$")
         plt.ylabel("$pvalue$")
         plt.title("KS-test result of {}.".format(feature_list[i]))
         plt.tight_layout()
@@ -71,20 +70,20 @@ for problem_id in range(1, 6):
         plt.close()
         # wd plot
         plt.figure(figsize=(5, 5))
-        plt.plot(x, wd)
-        plt.xlabel("$\log_2{scale\_factor}$")
+        plt.plot(X, wd)
+        plt.xlabel("$subtract\_lim$")
         plt.ylabel("$wasserstein_distance$")
         plt.title("Wasserstein Distance result of {}.".format(feature_list[i]))
         plt.tight_layout()
         plt.savefig("{}/{}/{}_wd.png".format(problem_id, feature_list[i],
-                                             feature_list[i]))
+                                                 feature_list[i]))
         plt.cla()
         plt.close()
         # distribution plot
-        PQf_df = pd.DataFrame(PQf, columns=["p", "q", "factor"])
+        PQf_df = pd.DataFrame(PQf, columns=["p", "q", "lim"])
         try:
-            joypy.joyplot(PQf_df, by="factor", figsize=(6, 10),
-                          title="Distribution of ${}$ over scale factors.".format(
+            joypy.joyplot(PQf_df, by="lim", figsize=(6, 10),
+                          title="Distribution of ${}$ over subtract limitation.".format(
                 feature_list[i]), color=["#1f77b4a0", "#ff7f0ea0"])
             rect1 = plt.Rectangle((0, 0), 0, 0, color='#1f77b4d0',
                                   label="basic distribution")

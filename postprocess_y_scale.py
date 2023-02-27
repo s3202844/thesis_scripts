@@ -13,16 +13,17 @@ def string_to_list(string):
     return [float(c) for c in content]
 
 
-factors = [0.015625, 0.03125, 0.0625, 0.125, 0.25, 0.5,
-           1., 2., 4., 8., 16., 32., 64., 128.]
+factors = [2**i for i in range(-6, 7)]
 x = [math.log(f, 2) for f in factors]
+print(factors)
+print(x)
 
 os.chdir("/data/s3202844/data")
-df = pd.read_csv("experiment_scale_distr.csv")
-df_test = pd.read_csv("experiment_scale_kstest.csv")
-if not os.path.exists("/home/s3202844/results/experiment_scale/"):
-    os.mkdir("/home/s3202844/results/experiment_scale/")
-os.chdir("/home/s3202844/results/experiment_scale/")
+df = pd.read_csv("experiment_y_scale_distr.csv")
+df_test = pd.read_csv("experiment_y_scale_kstest.csv")
+if not os.path.exists("/home/s3202844/results/experiment_y_scale/"):
+    os.mkdir("/home/s3202844/results/experiment_y_scale/")
+os.chdir("/home/s3202844/results/experiment_y_scale/")
 dataset_list = df.values.tolist()
 columns = df.columns.values.tolist()
 feature_list = columns[8:]
@@ -73,7 +74,7 @@ for problem_id in range(1, 6):
         plt.figure(figsize=(5, 5))
         plt.plot(x, wd)
         plt.xlabel("$\log_2{scale\_factor}$")
-        plt.ylabel("$wasserstein_distance$")
+        plt.ylabel("$wd$")
         plt.title("Wasserstein Distance result of {}.".format(feature_list[i]))
         plt.tight_layout()
         plt.savefig("{}/{}/{}_wd.png".format(problem_id, feature_list[i],
