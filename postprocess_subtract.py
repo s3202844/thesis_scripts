@@ -1,10 +1,7 @@
 import os
-import math
 import joypy
 import pandas as pd
 import matplotlib.pyplot as plt
-
-from scipy.stats import ks_2samp
 
 
 def string_to_list(string):
@@ -23,6 +20,65 @@ if not os.path.exists("/home/s3202844/results/experiment_subtract/"):
 os.chdir("/home/s3202844/results/experiment_subtract/")
 columns = df.columns.values.tolist()
 feature_list = columns[8:]
+
+plt.figure(figsize=(10, 22))
+color = ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd"]
+for problem_id in range(1, 6):
+    for i in range(len(feature_list)):
+        # 2 lists for 2 plots
+        pvalue = []
+        wd = []
+        for x in X:
+            # parse pvalue
+            test_string = df_test[(df_test["problem_id"] == float(problem_id)) &
+                                  (df_test["subtract_lim"] == float(x)) &
+                                  (df_test["is_subtract"] == 1.0)][
+                feature_list[i]].tolist()[0]
+            test = string_to_list(test_string)
+            pvalue += [test[1]]
+            wd += [test[2]]
+        t_ind = int(len(feature_list[i]) / 2)
+        plt.subplot(11, 5, i + 1)
+        plt.plot(X, pvalue, color=color[problem_id - 1], linewidth=1,
+                 label="problem {}".format(problem_id))
+        plt.axhline(0.05, color="red", linestyle=":")
+        plt.title(
+            "{}-\n{}".format(feature_list[i][:t_ind], feature_list[i][t_ind:]))
+plt.legend(bbox_to_anchor=(1.5, 0.2, 3, 0.7), loc="lower left",
+           mode="expand", borderaxespad=0, ncol=2)
+plt.tight_layout()
+plt.savefig("pvalue.eps", dpi=600, format='eps')
+plt.cla()
+plt.close()
+
+plt.figure(figsize=(10, 22))
+color = ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd"]
+for problem_id in range(1, 6):
+    for i in range(len(feature_list)):
+        # 2 lists for 2 plots
+        pvalue = []
+        wd = []
+        for x in X:
+            # parse pvalue
+            test_string = df_test[(df_test["problem_id"] == float(problem_id)) &
+                                  (df_test["subtract_lim"] == float(x)) &
+                                  (df_test["is_subtract"] == 1.0)][
+                feature_list[i]].tolist()[0]
+            test = string_to_list(test_string)
+            pvalue += [test[1]]
+            wd += [test[2]]
+        t_ind = int(len(feature_list[i]) / 2)
+        plt.subplot(11, 5, i + 1)
+        plt.plot(X, wd, color=color[problem_id - 1], linewidth=1,
+                 label="problem {}".format(problem_id))
+        plt.title(
+            "{}-\n{}".format(feature_list[i][:t_ind], feature_list[i][t_ind:]))
+plt.legend(bbox_to_anchor=(1.5, 0.2, 3, 0.7), loc="lower left",
+           mode="expand", borderaxespad=0, ncol=2)
+plt.tight_layout()
+plt.savefig("wd.eps", dpi=600, format='eps')
+plt.cla()
+plt.close()
 
 for problem_id in range(1, 6):
     if not os.path.exists("{}/".format(problem_id)):
