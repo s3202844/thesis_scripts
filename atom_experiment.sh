@@ -1,6 +1,6 @@
 description=$1
 folder_path=$2
-features="disp ela_distr ela_level ela_meta ic limo nbc pca"
+features="disp ela_distr ela_level ela_meta ic nbc pca"
 
 if [ ! -d "$description" ]; then
     mkdir $description

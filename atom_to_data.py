@@ -90,7 +90,7 @@ if __name__ == "__main__":
         sys.exit()
     num_sampling = 100
     feature_list = ["disp", "ela_distr", "ela_level",
-                    "ela_meta", "ic", "limo", "nbc", "pca"]
+                    "ela_meta", "ic", "nbc", "pca"]
     description = sys.argv[1]
     os.chdir(description)
     file_list = os.listdir()

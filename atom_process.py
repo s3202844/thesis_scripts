@@ -21,9 +21,9 @@ warnings.filterwarnings("ignore")
 def read_x(num_sampling, num_x):
     X = []
     m = num_x+1
-    f = open("/data/s3202844/data/samplingX.txt", "r")
+    # f = open("/data/s3202844/data/samplingX.txt", "r")
     # f = open("/data/s3202844/data/samplingX_002D.txt", "r")
-    # f = open("/data/s3202844/data/samplingX_010D.txt", "r")
+    f = open("/data/s3202844/data/samplingX_010D.txt", "r")
     lines = f.readlines()
     f.close()
     for i in range(num_sampling):
