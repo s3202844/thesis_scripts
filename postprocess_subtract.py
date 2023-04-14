@@ -1,5 +1,6 @@
 import os
 import joypy
+import random
 import pandas as pd
 import matplotlib.pyplot as plt
 
@@ -13,15 +14,15 @@ def string_to_list(string):
 X = [5.0 * n for n in range(1, 21)]
 
 os.chdir("/data/s3202844/data")
-df = pd.read_csv("experiment_subtract_distr.csv")
-df_test = pd.read_csv("experiment_subtract_kstest.csv")
-if not os.path.exists("/home/s3202844/results/experiment_subtract/"):
-    os.mkdir("/home/s3202844/results/experiment_subtract/")
-os.chdir("/home/s3202844/results/experiment_subtract/")
+df = pd.read_csv("experiment_10_subtract_distr.csv")
+df_test = pd.read_csv("experiment_10_subtract_kstest.csv")
+if not os.path.exists("/home/s3202844/results/experiment_10_subtract/"):
+    os.mkdir("/home/s3202844/results/experiment_10_subtract/")
+os.chdir("/home/s3202844/results/experiment_10_subtract/")
 columns = df.columns.values.tolist()
 feature_list = columns[8:]
 
-plt.figure(figsize=(10, 22))
+plt.figure(figsize=(14, 16))
 color = ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd"]
 for problem_id in range(1, 6):
     for i in range(len(feature_list)):
@@ -38,21 +39,21 @@ for problem_id in range(1, 6):
             pvalue += [test[1]]
             wd += [test[2]]
         t_ind = int(len(feature_list[i]) / 2)
-        plt.subplot(11, 5, i + 1)
+        plt.subplot(8, 7, i + 1)
         plt.plot(X, pvalue, color=color[problem_id - 1], linewidth=1,
                  label="problem {}".format(problem_id))
         plt.axhline(0.05, color="red", linestyle=":")
         plt.title(
             "{}-\n{}".format(feature_list[i][:t_ind], feature_list[i][t_ind:]))
-plt.legend(bbox_to_anchor=(1.5, 0.2, 3, 0.7), loc="lower left",
-           mode="expand", borderaxespad=0, ncol=2)
+plt.legend(bbox_to_anchor=(1.5, 0.2, 1.5, 0.7), loc="lower left",
+           mode="expand", borderaxespad=0, ncol=1)
 plt.tight_layout()
 plt.savefig("pvalue.png")
 plt.savefig("pvalue.eps", dpi=600, format='eps')
 plt.cla()
 plt.close()
 
-plt.figure(figsize=(10, 22))
+plt.figure(figsize=(14, 16))
 color = ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd"]
 for problem_id in range(1, 6):
     for i in range(len(feature_list)):
@@ -76,13 +77,13 @@ for problem_id in range(1, 6):
             else:
                 wd[j] = (wd[j] - wd_min) / (wd_max - wd_min)
         t_ind = int(len(feature_list[i]) / 2)
-        plt.subplot(11, 5, i + 1)
+        plt.subplot(8, 7, i + 1)
         plt.plot(X, wd, color=color[problem_id - 1], linewidth=1,
                  label="problem {}".format(problem_id))
         plt.title(
             "{}-\n{}".format(feature_list[i][:t_ind], feature_list[i][t_ind:]))
-plt.legend(bbox_to_anchor=(1.5, 0.2, 3, 0.7), loc="lower left",
-           mode="expand", borderaxespad=0, ncol=2)
+plt.legend(bbox_to_anchor=(1.5, 0.2, 1.5, 0.7), loc="lower left",
+           mode="expand", borderaxespad=0, ncol=1)
 plt.tight_layout()
 plt.savefig("wd.png")
 plt.savefig("wd.eps", dpi=600, format='eps')
@@ -111,6 +112,8 @@ plt.close()
 #             q = []
 #             for q_ in q_string:
 #                 q += string_to_list(q_)
+#             # sample elements from q to match the length of p
+#             q = random.sample(q, len(p))
 #             for j in range(len(p)):
 #                 PQf += [[p[j], q[j], x]]
 #             # parse pvalue
