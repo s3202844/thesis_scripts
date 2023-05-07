@@ -54,16 +54,14 @@ for i in range(len(feature_list)):
         t_ind = int(len(feature_list[i]) / 2)
         ax.plot(x, pvalue, color=color[problem_id - 1], linewidth=1,
                 label="problem {}".format(problem_id))
-        # plt.title(
-        #     "{}-\n{}".format(feature_list[i][:t_ind], feature_list[i][t_ind:]))
 ax = fig.add_subplot(8, 7, 56)
 ax.set_yticks([])
 ax.xaxis.set_label_coords(0.5, 0.1)
 ax.yaxis.set_label_coords(0.1, 0.5)
 ax.set_xlabel(r'$\log_2 scale\_factor$')
 ax.set_ylabel(r'p'+'-value')
-ax.plot([-5], [-5])
-ax.plot([5], [5])
+ax.plot(x[0], x[0])
+ax.plot(x[-1], x[-1])
 for problem_id in range(1, 6):
     ax.plot([0], [0], color=color[problem_id - 1], linewidth=1,
             label="problem {}".format(problem_id))
@@ -74,10 +72,14 @@ plt.savefig("pvalue.eps", dpi=600, format='eps')
 plt.cla()
 plt.close()
 
-plt.figure(figsize=(14, 16))
+
+fig = plt.figure(figsize=(14, 16))
 color = ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd"]
-for problem_id in range(1, 6):
-    for i in range(len(feature_list)):
+for i in range(len(feature_list)):
+    ax = fig.add_subplot(8, 7, i + 1)
+    ax.set_yticks([])
+    ax.set_xticks([])
+    for problem_id in range(1, 6):
         # 2 lists for 2 plots
         pvalue = []
         wd = []
@@ -98,16 +100,20 @@ for problem_id in range(1, 6):
             else:
                 wd[j] = (wd[j] - wd_min) / (wd_max - wd_min)
         t_ind = int(len(feature_list[i]) / 2)
-        plt.subplot(8, 7, i + 1)
-        # close y axis and x axis
-        # plt.xticks([])
-        # plt.yticks([])
-        plt.plot(x, wd, color=color[problem_id - 1], linewidth=1,
-                 label="problem {}".format(problem_id))
-        # plt.title(
-        #     "{}-\n{}".format(feature_list[i][:t_ind], feature_list[i][t_ind:]))
-plt.legend(bbox_to_anchor=(1.5, 0.2, 1.2, 0.7), loc="lower left",
-           mode="expand", borderaxespad=0, ncol=1)
+        ax.plot(x, wd, color=color[problem_id - 1], linewidth=1,
+                label="problem {}".format(problem_id))
+ax = fig.add_subplot(8, 7, 56)
+ax.set_yticks([])
+ax.xaxis.set_label_coords(0.5, 0.1)
+ax.yaxis.set_label_coords(0.1, 0.5)
+ax.set_xlabel(r'$\log_2 scale\_factor$')
+ax.set_ylabel('EMD')
+ax.plot(x[0], x[0])
+ax.plot(x[-1], x[-1])
+for problem_id in range(1, 6):
+    ax.plot([0], [0], color=color[problem_id - 1], linewidth=1,
+            label="problem {}".format(problem_id))
+ax.legend(loc="upper right", borderaxespad=0, ncol=1)
 plt.tight_layout()
 plt.savefig("wd.png")
 plt.savefig("wd.eps", dpi=600, format='eps')

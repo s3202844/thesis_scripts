@@ -27,10 +27,15 @@ feature_list = columns[8:]
 # remove limo features from feature list
 feature_list = [f for f in feature_list if f[:4] != "limo"]
 
-plt.figure(figsize=(14, 16))
+
+fig = plt.figure(figsize=(14, 16))
 color = ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd"]
-for problem_id in range(1, 6):
-    for i in range(len(feature_list)):
+for i in range(len(feature_list)):
+    ax = fig.add_subplot(8, 7, i + 1)
+    ax.set_yticks([])
+    ax.set_xticks([])
+    ax.axhline(0.05, color="red", linestyle=":")
+    for problem_id in range(1, 6):
         # 2 lists for 2 plots
         pvalue = []
         wd = []
@@ -44,24 +49,34 @@ for problem_id in range(1, 6):
             pvalue += [test[1]]
             wd += [test[2]]
         t_ind = int(len(feature_list[i]) / 2)
-        plt.subplot(8, 7, i + 1)
-        plt.plot(X, pvalue, color=color[problem_id - 1], linewidth=1,
-                 label="problem {}".format(problem_id))
-        plt.axhline(0.05, color="red", linestyle=":")
-        plt.title(
-            "{}-\n{}".format(feature_list[i][:t_ind], feature_list[i][t_ind:]))
-plt.legend(bbox_to_anchor=(1.5, 0.2, 1.2, 0.7), loc="lower left",
-           mode="expand", borderaxespad=0, ncol=1)
+        ax.plot(X, pvalue, color=color[problem_id - 1], linewidth=1,
+                label="problem {}".format(problem_id))
+ax = fig.add_subplot(8, 7, 56)
+ax.set_yticks([])
+ax.xaxis.set_label_coords(0.5, 0.1)
+ax.yaxis.set_label_coords(0.1, 0.5)
+ax.set_xlabel('tranbslation')
+ax.set_ylabel(r'p'+'-value')
+ax.plot(X[0], X[0])
+ax.plot(X[-1], X[-1])
+for problem_id in range(1, 6):
+    ax.plot([0], [0], color=color[problem_id - 1], linewidth=1,
+            label="problem {}".format(problem_id))
+ax.legend(loc="upper right", borderaxespad=0, ncol=1)
 plt.tight_layout()
 plt.savefig("pvalue.png")
 plt.savefig("pvalue.eps", dpi=600, format='eps')
 plt.cla()
 plt.close()
 
-plt.figure(figsize=(14, 16))
+
+fig = plt.figure(figsize=(14, 16))
 color = ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd"]
-for problem_id in range(1, 6):
-    for i in range(len(feature_list)):
+for i in range(len(feature_list)):
+    ax = fig.add_subplot(8, 7, i + 1)
+    ax.set_yticks([])
+    ax.set_xticks([])
+    for problem_id in range(1, 6):
         # 2 lists for 2 plots
         pvalue = []
         wd = []
@@ -75,13 +90,20 @@ for problem_id in range(1, 6):
             pvalue += [test[1]]
             wd += [test[2]]
         t_ind = int(len(feature_list[i]) / 2)
-        plt.subplot(8, 7, i + 1)
-        plt.plot(X, wd, color=color[problem_id - 1], linewidth=1,
+        ax.plot(X, wd, color=color[problem_id - 1], linewidth=1,
                  label="problem {}".format(problem_id))
-        plt.title(
-            "{}-\n{}".format(feature_list[i][:t_ind], feature_list[i][t_ind:]))
-plt.legend(bbox_to_anchor=(1.5, 0.2, 1.2, 0.7), loc="lower left",
-           mode="expand", borderaxespad=0, ncol=1)
+ax = fig.add_subplot(8, 7, 56)
+ax.set_yticks([])
+ax.xaxis.set_label_coords(0.5, 0.1)
+ax.yaxis.set_label_coords(0.1, 0.5)
+ax.set_xlabel('tranbslation')
+ax.set_ylabel('EMD')
+ax.plot(X[0], X[0])
+ax.plot(X[-1], X[-1])
+for problem_id in range(1, 6):
+    ax.plot([0], [0], color=color[problem_id - 1], linewidth=1,
+            label="problem {}".format(problem_id))
+ax.legend(loc="upper right", borderaxespad=0, ncol=1)
 plt.tight_layout()
 plt.savefig("wd.png")
 plt.savefig("wd.eps", dpi=600, format='eps')
