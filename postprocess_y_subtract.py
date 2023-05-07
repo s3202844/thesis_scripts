@@ -24,7 +24,10 @@ os.chdir("/home/s3202844/results/experiment_y_subtract/")
 columns = df.columns.values.tolist()
 feature_list = columns[8:]
 
-plt.figure(figsize=(10, 22))
+# remove limo features from feature list
+feature_list = [f for f in feature_list if f[:4] != "limo"]
+
+plt.figure(figsize=(14, 16))
 color = ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd"]
 for problem_id in range(1, 6):
     for i in range(len(feature_list)):
@@ -41,21 +44,21 @@ for problem_id in range(1, 6):
             pvalue += [test[1]]
             wd += [test[2]]
         t_ind = int(len(feature_list[i]) / 2)
-        plt.subplot(12, 5, i + 1)
+        plt.subplot(8, 7, i + 1)
         plt.plot(X, pvalue, color=color[problem_id - 1], linewidth=1,
                  label="problem {}".format(problem_id))
         plt.axhline(0.05, color="red", linestyle=":")
         plt.title(
             "{}-\n{}".format(feature_list[i][:t_ind], feature_list[i][t_ind:]))
-plt.legend(bbox_to_anchor=(1.5, 0.2, 3, 0.7), loc="lower left",
-           mode="expand", borderaxespad=0, ncol=2)
+plt.legend(bbox_to_anchor=(1.5, 0.2, 1.2, 0.7), loc="lower left",
+           mode="expand", borderaxespad=0, ncol=1)
 plt.tight_layout()
 plt.savefig("pvalue.png")
 plt.savefig("pvalue.eps", dpi=600, format='eps')
 plt.cla()
 plt.close()
 
-plt.figure(figsize=(10, 22))
+plt.figure(figsize=(14, 16))
 color = ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd"]
 for problem_id in range(1, 6):
     for i in range(len(feature_list)):
@@ -72,13 +75,13 @@ for problem_id in range(1, 6):
             pvalue += [test[1]]
             wd += [test[2]]
         t_ind = int(len(feature_list[i]) / 2)
-        plt.subplot(12, 5, i + 1)
+        plt.subplot(8, 7, i + 1)
         plt.plot(X, wd, color=color[problem_id - 1], linewidth=1,
                  label="problem {}".format(problem_id))
         plt.title(
             "{}-\n{}".format(feature_list[i][:t_ind], feature_list[i][t_ind:]))
-plt.legend(bbox_to_anchor=(1.5, 0.2, 3, 0.7), loc="lower left",
-           mode="expand", borderaxespad=0, ncol=2)
+plt.legend(bbox_to_anchor=(1.5, 0.2, 1.2, 0.7), loc="lower left",
+           mode="expand", borderaxespad=0, ncol=1)
 plt.tight_layout()
 plt.savefig("wd.png")
 plt.savefig("wd.eps", dpi=600, format='eps')
