@@ -18,12 +18,20 @@ x = [math.log(f, 2) for f in factors]
 print(factors)
 print(x)
 
+# os.chdir("/home/ian/thesis_data")
+# df = pd.read_csv("experiment_y_scale_distr.csv")
+# df_test = pd.read_csv("experiment_y_scale_kstest.csv")
+# if not os.path.exists("/home/ian/thesis_results/experiment_y_scale/"):
+#     os.mkdir("/home/ian/thesis_results/experiment_y_scale/")
+# os.chdir("/home/ian/thesis_results/experiment_y_scale/")
+
 os.chdir("/data/s3202844/data")
 df = pd.read_csv("experiment_y_scale_distr.csv")
 df_test = pd.read_csv("experiment_y_scale_kstest.csv")
 if not os.path.exists("/home/s3202844/results/experiment_y_scale/"):
     os.mkdir("/home/s3202844/results/experiment_y_scale/")
 os.chdir("/home/s3202844/results/experiment_y_scale/")
+
 dataset_list = df.values.tolist()
 columns = df.columns.values.tolist()
 feature_list = columns[8:]
@@ -60,8 +68,8 @@ ax = fig.add_subplot(8, 7, 56)
 ax.set_yticks([])
 ax.xaxis.set_label_coords(0.5, 0.1)
 ax.yaxis.set_label_coords(0.1, 0.5)
-ax.set_xlabel(r'$\log_2 scale\_factor$', fontsize=12)
-ax.set_ylabel(r'p'+'-value', fontsize=12)
+ax.set_xlabel(r'$\log_2 scale\_factor$', fontsize=14)
+ax.set_ylabel(r'p'+'-value', fontsize=14)
 ax.plot(x[0], x[0])
 ax.plot(x[-1], x[-1])
 for problem_id in range(1, 6):
@@ -111,8 +119,8 @@ ax = fig.add_subplot(8, 7, 56)
 ax.set_yticks([])
 ax.xaxis.set_label_coords(0.5, 0.1)
 ax.yaxis.set_label_coords(0.1, 0.5)
-ax.set_xlabel(r'$\log_2 scale\_factor$', fontsize=12)
-ax.set_ylabel('EMD', fontsize=12)
+ax.set_xlabel(r'$\log_2 scale\_factor$', fontsize=14)
+ax.set_ylabel('EMD', fontsize=14)
 ax.plot(x[0], x[0])
 ax.plot(x[-1], x[-1])
 for problem_id in range(1, 6):

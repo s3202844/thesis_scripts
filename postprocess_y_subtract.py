@@ -15,12 +15,20 @@ def string_to_list(string):
 
 X = [100 * i for i in range(11)]
 
+# os.chdir("/home/ian/thesis_data")
+# df = pd.read_csv("experiment_y_subtract_distr.csv")
+# df_test = pd.read_csv("experiment_y_subtract_kstest.csv")
+# if not os.path.exists("/home/ian/thesis_results/experiment_y_subtract/"):
+#     os.mkdir("/home/ian/thesis_results/experiment_y_subtract/")
+# os.chdir("/home/ian/thesis_results/experiment_y_subtract/")
+
 os.chdir("/data/s3202844/data")
 df = pd.read_csv("experiment_y_subtract_distr.csv")
 df_test = pd.read_csv("experiment_y_subtract_kstest.csv")
 if not os.path.exists("/home/s3202844/results/experiment_y_subtract/"):
     os.mkdir("/home/s3202844/results/experiment_y_subtract/")
 os.chdir("/home/s3202844/results/experiment_y_subtract/")
+
 columns = df.columns.values.tolist()
 feature_list = columns[8:]
 
@@ -57,8 +65,8 @@ ax = fig.add_subplot(8, 7, 56)
 ax.set_yticks([])
 ax.xaxis.set_label_coords(0.5, 0.1)
 ax.yaxis.set_label_coords(0.1, 0.5)
-ax.set_xlabel('tranbslation', fontsize=12)
-ax.set_ylabel(r'p'+'-value', fontsize=12)
+ax.set_xlabel('tranbslation', fontsize=14)
+ax.set_ylabel(r'p'+'-value', fontsize=14)
 ax.plot(X[0], X[0])
 ax.plot(X[-1], X[-1])
 for problem_id in range(1, 6):
@@ -93,6 +101,13 @@ for i in range(len(feature_list)):
             test = string_to_list(test_string)
             pvalue += [test[1]]
             wd += [test[2]]
+        wd_min = min(wd)
+        wd_max = max(wd)
+        for j in range(len(wd)):
+            if wd[j] == wd_min:
+                wd[j] = 0.0
+            else:
+                wd[j] = (wd[j] - wd_min) / (wd_max - wd_min)
         t_ind = int(len(feature_list[i]) / 2)
         ax.plot(X, wd, color=color[problem_id - 1],
                 linestyle=linestyle[problem_id - 1], linewidth=2,
@@ -101,8 +116,8 @@ ax = fig.add_subplot(8, 7, 56)
 ax.set_yticks([])
 ax.xaxis.set_label_coords(0.5, 0.1)
 ax.yaxis.set_label_coords(0.1, 0.5)
-ax.set_xlabel('tranbslation', fontsize=12)
-ax.set_ylabel('EMD', fontsize=12)
+ax.set_xlabel('tranbslation', fontsize=14)
+ax.set_ylabel('EMD', fontsize=14)
 ax.plot(X[0], X[0])
 ax.plot(X[-1], X[-1])
 for problem_id in range(1, 6):
