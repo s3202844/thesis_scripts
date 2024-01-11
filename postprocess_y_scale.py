@@ -28,9 +28,9 @@ print(x)
 os.chdir("/data/s3202844/data")
 df = pd.read_csv("experiment_y_scale_distr.csv")
 df_test = pd.read_csv("experiment_y_scale_kstest.csv")
-if not os.path.exists("/home/s3202844/results/experiment_y_scale/"):
-    os.mkdir("/home/s3202844/results/experiment_y_scale/")
-os.chdir("/home/s3202844/results/experiment_y_scale/")
+if not os.path.exists("/scratch/hyin/thesis_scripts/experiment_y_scale/"):
+    os.mkdir("/scratch/hyin/thesis_scripts/experiment_y_scale/")
+os.chdir("/scratch/hyin/thesis_scripts/experiment_y_scale/")
 
 dataset_list = df.values.tolist()
 columns = df.columns.values.tolist()
@@ -39,6 +39,7 @@ feature_list = columns[8:]
 # remove limo features from feature list
 feature_list = [f for f in feature_list if f[:4] != "limo"]
 
+PVALUE = [[0 for _ in range(len(factors))] for _ in range(5)]
 fig = plt.figure(figsize=(14, 16))
 color = ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd"]
 linestyle = ["-", "--", ":", "-.", "-"]
@@ -51,7 +52,8 @@ for i in range(len(feature_list)):
         # 2 lists for 2 plots
         pvalue = []
         wd = []
-        for f in factors:
+        for j in range(len(factors)):
+            f = factors[j]
             # parse pvalue
             test_string = df_test[(df_test["problem_id"] == float(problem_id)) &
                                   (df_test["scale_factor"] == float(f)) &
@@ -60,6 +62,7 @@ for i in range(len(feature_list)):
             test = string_to_list(test_string)
             pvalue += [test[1]]
             wd += [test[2]]
+            PVALUE[problem_id-1][j] += 1 if test[1] < 0.05 else 0
         t_ind = int(len(feature_list[i]) / 2)
         ax.plot(x, pvalue, color=color[problem_id - 1],
                 linestyle=linestyle[problem_id - 1], linewidth=2,
@@ -84,6 +87,7 @@ plt.cla()
 plt.close()
 
 
+WD = [[0 for _ in range(len(factors))] for _ in range(5)]
 fig = plt.figure(figsize=(14, 16))
 color = ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd"]
 linestyle = ["-", "--", ":", "-.", "-"]
@@ -95,7 +99,8 @@ for i in range(len(feature_list)):
         # 2 lists for 2 plots
         pvalue = []
         wd = []
-        for f in factors:
+        for j in range(len(factors)):
+            f = factors[j]
             # parse pvalue
             test_string = df_test[(df_test["problem_id"] == float(problem_id)) &
                                   (df_test["scale_factor"] == float(f)) &
@@ -111,6 +116,7 @@ for i in range(len(feature_list)):
                 wd[j] = 0.0
             else:
                 wd[j] = (wd[j] - wd_min) / (wd_max - wd_min)
+            WD[problem_id-1][j] += wd[j] / len(feature_list)
         t_ind = int(len(feature_list[i]) / 2)
         ax.plot(x, wd, color=color[problem_id - 1],
                 linestyle=linestyle[problem_id - 1], linewidth=2,
@@ -133,6 +139,11 @@ plt.savefig("wd.png")
 plt.savefig("wd.eps", dpi=600, format='eps')
 plt.cla()
 plt.close()
+
+
+f = open("aggregation.txt", "w")
+f.writelines([str(PVALUE)+'\n', str(WD)])
+f.close()
 
 # for problem_id in range(1, 6):
 #     if not os.path.exists("{}/".format(problem_id)):

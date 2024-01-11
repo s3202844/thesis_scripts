@@ -25,9 +25,9 @@ X = [100 * i for i in range(11)]
 os.chdir("/data/s3202844/data")
 df = pd.read_csv("experiment_y_subtract_distr.csv")
 df_test = pd.read_csv("experiment_y_subtract_kstest.csv")
-if not os.path.exists("/home/s3202844/results/experiment_y_subtract/"):
-    os.mkdir("/home/s3202844/results/experiment_y_subtract/")
-os.chdir("/home/s3202844/results/experiment_y_subtract/")
+if not os.path.exists("/scratch/hyin/thesis_scripts/experiment_y_subtract/"):
+    os.mkdir("/scratch/hyin/thesis_scripts/experiment_y_subtract/")
+os.chdir("/scratch/hyin/thesis_scripts/experiment_y_subtract/")
 
 columns = df.columns.values.tolist()
 feature_list = columns[8:]
@@ -36,6 +36,7 @@ feature_list = columns[8:]
 feature_list = [f for f in feature_list if f[:4] != "limo"]
 
 
+PVALUE = [[0 for _ in range(len(X))] for _ in range(5)]
 fig = plt.figure(figsize=(14, 16))
 color = ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd"]
 linestyle = ["-", "--", ":", "-.", "-"]
@@ -48,7 +49,8 @@ for i in range(len(feature_list)):
         # 2 lists for 2 plots
         pvalue = []
         wd = []
-        for x in X:
+        for j in range(len(X)):
+            x = X[j]
             # parse pvalue
             test_string = df_test[(df_test["problem_id"] == float(problem_id)) &
                                   (df_test["subtract_lim"] == float(x)) &
@@ -57,6 +59,7 @@ for i in range(len(feature_list)):
             test = string_to_list(test_string)
             pvalue += [test[1]]
             wd += [test[2]]
+            PVALUE[problem_id-1][j] += 1 if test[1] < 0.05 else 0
         t_ind = int(len(feature_list[i]) / 2)
         ax.plot(X, pvalue, color=color[problem_id - 1],
                 linestyle=linestyle[problem_id - 1], linewidth=2,
@@ -81,6 +84,7 @@ plt.cla()
 plt.close()
 
 
+WD = [[0 for _ in range(len(X))] for _ in range(5)]
 fig = plt.figure(figsize=(14, 16))
 color = ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd"]
 linestyle = ["-", "--", ":", "-.", "-"]
@@ -92,7 +96,8 @@ for i in range(len(feature_list)):
         # 2 lists for 2 plots
         pvalue = []
         wd = []
-        for x in X:
+        for j in range(len(X)):
+            x = X[j]
             # parse pvalue
             test_string = df_test[(df_test["problem_id"] == float(problem_id)) &
                                   (df_test["subtract_lim"] == float(x)) &
@@ -108,6 +113,7 @@ for i in range(len(feature_list)):
                 wd[j] = 0.0
             else:
                 wd[j] = (wd[j] - wd_min) / (wd_max - wd_min)
+            WD[problem_id-1][j] += wd[j] / len(feature_list)
         t_ind = int(len(feature_list[i]) / 2)
         ax.plot(X, wd, color=color[problem_id - 1],
                 linestyle=linestyle[problem_id - 1], linewidth=2,
@@ -131,6 +137,9 @@ plt.savefig("wd.eps", dpi=600, format='eps')
 plt.cla()
 plt.close()
 
+f = open("aggregation.txt", "w")
+f.writelines([str(PVALUE)+'\n', str(WD)])
+f.close()
 
 # for problem_id in range(1, 6):
 #     if not os.path.exists("{}/".format(problem_id)):

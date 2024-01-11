@@ -1,8 +1,7 @@
 import os
-import joypy
-import random
 import pandas as pd
 import matplotlib.pyplot as plt
+import matplotlib.ticker as mtick
 
 
 def string_to_list(string):
@@ -23,14 +22,14 @@ X = [5.0 * n for n in range(1, 21)]
 os.chdir("/data/s3202844/data")
 df = pd.read_csv("experiment_10_subtract_distr.csv")
 df_test = pd.read_csv("experiment_10_subtract_kstest.csv")
-if not os.path.exists("/home/s3202844/results/experiment_10_subtract/"):
-    os.mkdir("/home/s3202844/results/experiment_10_subtract/")
-os.chdir("/home/s3202844/results/experiment_10_subtract/")
+if not os.path.exists("/scratch/hyin/thesis_scripts/experiment_10_subtract/"):
+    os.mkdir("/scratch/hyin/thesis_scripts/experiment_10_subtract/")
+os.chdir("/scratch/hyin/thesis_scripts/experiment_10_subtract/")
 
 columns = df.columns.values.tolist()
 feature_list = columns[8:]
 
-
+PVALUE = [[0 for _ in range(len(X))] for _ in range(5)]
 fig = plt.figure(figsize=(14, 16))
 color = ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd"]
 linestyle = ["-", "--", ":", "-.", "-"]
@@ -43,7 +42,8 @@ for i in range(len(feature_list)):
         # 2 lists for 2 plots
         pvalue = []
         wd = []
-        for x in X:
+        for j in range(len(X)):
+            x = X[j]
             # parse pvalue
             test_string = df_test[(df_test["problem_id"] == float(problem_id)) &
                                   (df_test["subtract_lim"] == float(x)) &
@@ -52,6 +52,7 @@ for i in range(len(feature_list)):
             test = string_to_list(test_string)
             pvalue += [test[1]]
             wd += [test[2]]
+            PVALUE[problem_id-1][j] += 1 if test[1] < 0.05 else 0
         t_ind = int(len(feature_list[i]) / 2)
         ax.plot(X, pvalue, color=color[problem_id - 1],
                 linestyle=linestyle[problem_id - 1], linewidth=2,
@@ -76,6 +77,22 @@ plt.cla()
 plt.close()
 
 
+# tx = [5.*i for i in range(1, 21)]
+# plt.xlabel('translation limit')
+# plt.ylabel('$p$-value from K-S test results')
+# plt.title('Applying translations on search space.')
+# plt.plot(tx, PVALUE, color='#ff7f0e')
+# plt.axhline(0.05, color="red", linestyle=":")
+# fmt = '%.0f%%'  # 设置百分比的格式
+# xticks = mtick.FormatStrFormatter(fmt)
+# plt.gca().xaxis.set_major_formatter(xticks)
+# plt.tight_layout()
+# plt.savefig('x_translation_pvalue.png')
+# plt.cla()
+# plt.close()
+
+
+WD = [[0 for _ in range(len(X))] for _ in range(5)]
 fig = plt.figure(figsize=(14, 16))
 color = ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd"]
 linestyle = ["-", "--", ":", "-.", "-"]
@@ -87,7 +104,8 @@ for i in range(len(feature_list)):
         # 2 lists for 2 plots
         pvalue = []
         wd = []
-        for x in X:
+        for j in range(len(X)):
+            x = X[j]
             # parse pvalue
             test_string = df_test[(df_test["problem_id"] == float(problem_id)) &
                                   (df_test["subtract_lim"] == float(x)) &
@@ -103,6 +121,7 @@ for i in range(len(feature_list)):
                 wd[j] = 0.0
             else:
                 wd[j] = (wd[j] - wd_min) / (wd_max - wd_min)
+            WD[problem_id-1][j] += wd[j] / (len(feature_list))
         t_ind = int(len(feature_list[i]) / 2)
         ax.plot(X, wd, color=color[problem_id - 1],
                 linestyle=linestyle[problem_id - 1], linewidth=2,
@@ -126,87 +145,105 @@ plt.savefig("wd.eps", dpi=600, format='eps')
 plt.cla()
 plt.close()
 
-for problem_id in range(1, 6):
-    if not os.path.exists("{}/".format(problem_id)):
-        os.mkdir("{}/".format(problem_id))
-    for i in range(len(feature_list)):
-        if not os.path.exists("{}/{}/".format(problem_id, feature_list[i])):
-            os.mkdir("{}/{}/".format(problem_id, feature_list[i]))
-        # 2 lists for 2 plots
-        PQf = []
-        pvalue = []
-        wd = []
-        for x in X:
-            # parse distribution
-            p_string = df[(df["problem_id"] == float(problem_id)) &
-                          (df["is_subtract"] == 0.0)][
-                feature_list[i]].tolist()[0]
-            q_string = df[(df["problem_id"] == float(problem_id)) &
-                          (df["subtract_lim"] == float(x)) &
-                          (df["is_subtract"] == 1.0)][feature_list[i]].tolist()
-            p = string_to_list(p_string)
-            q = []
-            for q_ in q_string:
-                q += string_to_list(q_)
-            # sample elements from q to match the length of p
-            q = random.sample(q, len(p))
-            for j in range(len(p)):
-                PQf += [[p[j], q[j], x]]
-            # parse pvalue
-            test_string = df_test[(df_test["problem_id"] == float(problem_id)) &
-                                  (df_test["subtract_lim"] == float(x)) &
-                                  (df_test["is_subtract"] == 1.0)][
-                feature_list[i]].tolist()[0]
-            test = string_to_list(test_string)
-            pvalue += [test[1]]
-            wd += [test[2]]
-        # pvalue plot
-        plt.figure(figsize=(5, 5))
-        plt.ylim(-0.1, 1.1)
-        plt.plot(X, pvalue)
-        plt.axhline(0.05, color="red", linestyle=":")
-        plt.xlabel("translation limit")
-        plt.ylabel("$p$-value")
-        plt.title("K-S test result of {}".format(feature_list[i]))
-        plt.tight_layout()
-        plt.savefig("{}/{}/{}_pvalue.png".format(problem_id, feature_list[i],
-                                                 feature_list[i]))
-        plt.cla()
-        plt.close()
-        # wd plot
-        plt.figure(figsize=(5, 5))
-        plt.plot(X, wd)
-        plt.xlabel("translation limit")
-        plt.ylabel("EMD")
-        plt.title("EMD of {}".format(feature_list[i]))
-        plt.tight_layout()
-        plt.savefig("{}/{}/{}_wd.png".format(problem_id, feature_list[i],
-                                             feature_list[i]))
-        plt.cla()
-        plt.close()
-        # distribution plot
-        PQf_df = pd.DataFrame(PQf, columns=["p", "q", "lim"])
-        try:
-            joypy.joyplot(PQf_df, by="lim", figsize=(6, 10),
-                          color=["#1f77b4a0", "#ff7f0ea0"])
-            rect1 = plt.Rectangle((0, 0), 0, 0, color='#1f77b4d0',
-                                  label="basic distribution")
-            rect2 = plt.Rectangle((0, 0), 0, 0, color='#ff7f0ed0',
-                                  label="new distribution")
-            plt.gca().add_patch(rect1)
-            plt.gca().add_patch(rect2)
-            plt.title("Distribution of {} over translation limit.".format(
-                feature_list[i]), fontsize=14)
-            plt.xlabel("feature value", fontsize=14)
-            plt.ylabel("translation limit", fontsize=14)
-            plt.tight_layout()
-            plt.legend(loc=3, fontsize=14)
-            plt.savefig("{}/{}/{}_distr.png".format(problem_id,
-                                                    feature_list[i],
-                                                    feature_list[i]))
-            plt.cla()
-            plt.close()
-        except ValueError:
-            plt.cla()
-            plt.close()
-            print("{} only have None value!".format(feature_list[i]))
+# tx = [5.*i for i in range(1, 21)]
+# plt.xlabel('translation limit')
+# plt.ylabel('Earth Mover\'s Distance')
+# plt.title('Applying translations on search space.')
+# plt.plot(tx, WD)
+# fmt = '%.0f%%'  # 设置百分比的格式
+# xticks = mtick.FormatStrFormatter(fmt)
+# plt.gca().xaxis.set_major_formatter(xticks)
+# plt.tight_layout()
+# plt.savefig('x_translation_wd.png')
+# plt.cla()
+# plt.close()
+
+
+f = open("aggregation.txt", "w")
+f.writelines([str(PVALUE)+'\n', str(WD)])
+f.close()
+
+# for problem_id in range(1, 6):
+#     if not os.path.exists("{}/".format(problem_id)):
+#         os.mkdir("{}/".format(problem_id))
+#     for i in range(len(feature_list)):
+#         if not os.path.exists("{}/{}/".format(problem_id, feature_list[i])):
+#             os.mkdir("{}/{}/".format(problem_id, feature_list[i]))
+#         # 2 lists for 2 plots
+#         PQf = []
+#         pvalue = []
+#         wd = []
+#         for x in X:
+#             # parse distribution
+#             p_string = df[(df["problem_id"] == float(problem_id)) &
+#                           (df["is_subtract"] == 0.0)][
+#                 feature_list[i]].tolist()[0]
+#             q_string = df[(df["problem_id"] == float(problem_id)) &
+#                           (df["subtract_lim"] == float(x)) &
+#                           (df["is_subtract"] == 1.0)][feature_list[i]].tolist()
+#             p = string_to_list(p_string)
+#             q = []
+#             for q_ in q_string:
+#                 q += string_to_list(q_)
+#             # sample elements from q to match the length of p
+#             q = random.sample(q, len(p))
+#             for j in range(len(p)):
+#                 PQf += [[p[j], q[j], x]]
+#             # parse pvalue
+#             test_string = df_test[(df_test["problem_id"] == float(problem_id)) &
+#                                   (df_test["subtract_lim"] == float(x)) &
+#                                   (df_test["is_subtract"] == 1.0)][
+#                 feature_list[i]].tolist()[0]
+#             test = string_to_list(test_string)
+#             pvalue += [test[1]]
+#             wd += [test[2]]
+#         # pvalue plot
+#         plt.figure(figsize=(5, 5))
+#         plt.ylim(-0.1, 1.1)
+#         plt.plot(X, pvalue)
+#         plt.axhline(0.05, color="red", linestyle=":")
+#         plt.xlabel("translation limit")
+#         plt.ylabel("$p$-value")
+#         plt.title("K-S test result of {}".format(feature_list[i]))
+#         plt.tight_layout()
+#         plt.savefig("{}/{}/{}_pvalue.png".format(problem_id, feature_list[i],
+#                                                  feature_list[i]))
+#         plt.cla()
+#         plt.close()
+#         # wd plot
+#         plt.figure(figsize=(5, 5))
+#         plt.plot(X, wd)
+#         plt.xlabel("translation limit")
+#         plt.ylabel("EMD")
+#         plt.title("EMD of {}".format(feature_list[i]))
+#         plt.tight_layout()
+#         plt.savefig("{}/{}/{}_wd.png".format(problem_id, feature_list[i],
+#                                              feature_list[i]))
+#         plt.cla()
+#         plt.close()
+#         # distribution plot
+#         PQf_df = pd.DataFrame(PQf, columns=["p", "q", "lim"])
+#         try:
+#             joypy.joyplot(PQf_df, by="lim", figsize=(6, 10),
+#                           color=["#1f77b4a0", "#ff7f0ea0"])
+#             rect1 = plt.Rectangle((0, 0), 0, 0, color='#1f77b4d0',
+#                                   label="basic distribution")
+#             rect2 = plt.Rectangle((0, 0), 0, 0, color='#ff7f0ed0',
+#                                   label="new distribution")
+#             plt.gca().add_patch(rect1)
+#             plt.gca().add_patch(rect2)
+#             plt.title("Distribution of {} over translation limit.".format(
+#                 feature_list[i]), fontsize=14)
+#             plt.xlabel("feature value", fontsize=14)
+#             plt.ylabel("translation limit", fontsize=14)
+#             plt.tight_layout()
+#             plt.legend(loc=3, fontsize=14)
+#             plt.savefig("{}/{}/{}_distr.png".format(problem_id,
+#                                                     feature_list[i],
+#                                                     feature_list[i]))
+#             plt.cla()
+#             plt.close()
+#         except ValueError:
+#             plt.cla()
+#             plt.close()
+#             print("{} only have None value!".format(feature_list[i]))
