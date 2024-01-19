@@ -140,7 +140,8 @@ plt.savefig("wd.eps", dpi=600, format='eps')
 plt.cla()
 plt.close()
 
-
+for i in range(len(WD)):
+    WD[i][6] = 0
 f = open("aggregation.txt", "w")
 f.writelines([str(PVALUE)+'\n', str(WD)])
 f.close()
